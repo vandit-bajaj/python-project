@@ -140,7 +140,7 @@ test.describe("DermaLens Skin Report & Visualisation E2E", () => {
 
     // Listen for download event
     const downloadPromise = page.waitForEvent("download", { timeout: 10000 });
-    await page.locator("#btn-download-pdf").click();
+    const downloadBtn = page.locator("#btn-download-pdf"); await expect(downloadBtn).toBeEnabled(); await downloadBtn.click();
     const download = await downloadPromise;
 
     expect(download.suggestedFilename()).toBe("dermalens-report.pdf");

@@ -67,12 +67,12 @@ export default function HomePage() {
       </section>
 
       {/* Primary Actions & Disclaimers */}
-      <footer style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <footer style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
         <Link
           href="/scan"
           id="btn-scan-camera"
           className="btn-primary"
-          style={{ width: "100%", textAlign: "center" }}
+          style={{ width: "100%", textAlign: "center", textDecoration: "none" }}
         >
           {APP_CONTENT.landing.ctaStartCamera}
         </Link>
@@ -81,9 +81,18 @@ export default function HomePage() {
           href="/scan"
           id="btn-upload-photo"
           className="btn-secondary"
-          style={{ width: "100%", textAlign: "center" }}
+          style={{ width: "100%", textAlign: "center", textDecoration: "none" }}
         >
           {APP_CONTENT.landing.ctaUploadPhoto}
+        </Link>
+
+        <Link
+          href="/history"
+          id="btn-view-history"
+          className="btn-secondary"
+          style={{ width: "100%", textAlign: "center", textDecoration: "none" }}
+        >
+          📊 View Scan History & Progress
         </Link>
 
         <p style={{
