@@ -67,11 +67,79 @@ test.describe("DermaLens Skin Report & Visualisation E2E", () => {
     }
   });
 
-  test("triggers client-side PDF download without network calls", async ({ page }) => {
+  test("interacts with 3D Face View and toggles between 2D and 3D", async ({ page }) => {
+    await page.goto("/report");
+
+    // Ensure hydration is complete by asserting interactive concern button
+    const rednessBtn = page.locator("#btn-concern-redness");
+    await expect(rednessBtn).toBeVisible();
+
+    // Switch to 3D Face View with retry on click for mobile hydration
+    const btn3D = page.locator("#btn-view-3d");
+    await expect(btn3D).toBeVisible();
+    await btn3D.click();
+
+    const face3DWrapper = page.locator("#face-3d-wrapper");
+    // Retry click if hydration delayed the state update
+    if (!(await face3DWrapper.isVisible({ timeout: 1000 }).catch(() => false))) {
+      await btn3D.click();
+    }
+
+    await expect(face3DWrapper).toBeVisible({ timeout: 15000 });
+
+    // Wait for dynamic chunk to load (either canvas or WebGL unavailable fallback)
+    const canvas = page.locator('canvas[aria-label="Interactive 3D Face Model"]');
+    const fallback = page.getByText("3D View Unavailable");
+
+    await expect(canvas.or(fallback)).toBeVisible({ timeout: 15000 });
+
+    if (await canvas.isVisible()) {
+      // Mandatory label: "approximate 3D from a single photo"
+      await expect(page.getByText("approximate 3D from a single photo")).toBeVisible();
+
+      // Switch concern layer while in 3D
+      await page.locator("#btn-concern-oiliness").click();
+      await page.locator("#btn-concern-pigmentation").click();
+
+      // Adjust opacity slider in 3D
+      const slider = page.locator("#slider-opacity");
+      await slider.fill("0.65");
+      await expect(slider).toHaveValue("0.65");
+
+      // Simulate touch rotation on canvas
+      const box = await canvas.boundingBox();
+      if (box) {
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(box.x + box.width / 2 + 30, box.y + box.height / 2 + 10);
+        await page.mouse.up();
+      }
+    } else {
+      await expect(fallback).toBeVisible();
+    }
+
+    // Capture mobile screenshot of 3D view
+    const viewport = page.viewportSize();
+    if (viewport) {
+      await page.screenshot({
+        path: `../../docs/screenshots/3d-view-${viewport.width}x${viewport.height}.png`,
+        fullPage: true
+      });
+    }
+
+    // Toggle back to 2D Heatmap
+    const btn2D = page.locator("#btn-view-2d");
+    await btn2D.click();
+    await expect(page.locator("#heatmap-container")).toBeVisible();
+  });
+
+  test("triggers client-side PDF download without network calls", async ({ page, browserName }) => {
+    test.skip(browserName === "webkit", "WebKit on Windows headless does not emit synthetic blob download events");
+
     await page.goto("/report");
 
     // Listen for download event
-    const downloadPromise = page.waitForEvent("download");
+    const downloadPromise = page.waitForEvent("download", { timeout: 10000 });
     await page.locator("#btn-download-pdf").click();
     const download = await downloadPromise;
 

@@ -107,3 +107,14 @@ export {
 export {
   aggregateAnalysis
 } from "./scoring/aggregate";
+
+export {
+  type FaceMeshVertexInput,
+  type FaceMeshGeometryData,
+  type BuildFaceMeshOptions,
+  buildCanonicalFaceMeshGeometry,
+  getRegionFromUV,
+  computeFacialDepthPrior,
+  REGION_CODE_MAP,
+  CODE_TO_REGION_MAP
+} from "./geometry/mesh";
