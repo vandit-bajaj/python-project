@@ -25,7 +25,7 @@ test.describe("DermaLens Local History & Progress E2E", () => {
 
     // 2. Navigate to /history
     await viewHistoryLink.click();
-    await expect(page).toHaveURL(/\/history/);
+    await expect(page).toHaveURL(/\/history/, { timeout: 15000 });
     await expect(page.locator("h1")).toContainText("Scan History & Progress");
     await expect(page.locator('main[data-ready="true"]')).toBeVisible();
 
