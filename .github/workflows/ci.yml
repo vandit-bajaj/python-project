@@ -83,7 +83,7 @@ jobs:
         run: pnpm build
 
       - name: Install Playwright Browsers
-        run: pnpm --filter web exec playwright install --with-deps chromium
+        run: pnpm --filter web exec playwright install --with-deps chromium webkit
 
       - name: Run Playwright Smoke & Zero Outbound Requests Test
         run: pnpm test:e2e
