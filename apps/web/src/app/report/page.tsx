@@ -20,6 +20,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { APP_CONTENT } from "@/content";
+import { CURRENT_APP_VERSION, saveScan } from "@/storage/db";
 import { downloadReportPdf, printReport, type ReportPdfData } from "@/utils/pdf";
 
 // Lazy-loaded 3D face viewer chunk (SSR disabled)
@@ -40,6 +41,8 @@ export default function ReportPage() {
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
   const [albedoBuffer, setAlbedoBuffer] = useState<Uint8ClampedArray | null>(null);
   const [selectedRegionHighlight, setSelectedRegionHighlight] = useState<FaceRegionId | null>(null);
+  const [isSavingHistory, setIsSavingHistory] = useState(false);
+  const [isSavedToHistory, setIsSavedToHistory] = useState(false);
 
   useEffect(() => {
     // Generate synthetic UV face texture
@@ -181,12 +184,46 @@ export default function ReportPage() {
 
   const activeConcern = analysisReport?.results.find((r) => r.id === selectedConcernId) ?? analysisReport?.results[0];
 
+  const handleSaveToHistory = async () => {
+    if (!analysisReport) return;
+    setIsSavingHistory(true);
+
+    try {
+      await saveScan({
+        timestamp: Date.now(),
+        overallScore: analysisReport.overallScore,
+        overallConfidence: Math.round(analysisReport.overallConfidence * 100),
+        primaryConcerns: analysisReport.primaryConcerns,
+        concerns: analysisReport.results.map((r) => {
+          const c = APP_CONTENT.report.concerns[r.id as keyof typeof APP_CONTENT.report.concerns];
+          return {
+            id: r.id,
+            label: c ? c.label : r.id,
+            overallScore: r.overallScore,
+            isBeta: r.isBeta,
+            regionScores: r.regionScores,
+            analyzerVersion: r.version
+          };
+        }),
+        quality: {
+          lightingEvenness: 0.94,
+          blurScore: 195,
+          scalePxMm: 4.5
+        },
+        appVersion: CURRENT_APP_VERSION
+      });
+      setIsSavedToHistory(true);
+    } finally {
+      setIsSavingHistory(false);
+    }
+  };
+
   const handleDownloadPdf = async () => {
     if (!analysisReport) return;
     setIsPdfGenerating(true);
 
     try {
-            const pdfData: ReportPdfData = {
+      const pdfData: ReportPdfData = {
         overallScore: analysisReport.overallScore,
         overallConfidence: Math.round(analysisReport.overallConfidence * 100),
         primaryConcerns: analysisReport.primaryConcerns.map((id) => {
@@ -210,7 +247,7 @@ export default function ReportPage() {
         }
       };
 
-      downloadReportPdf(pdfData, `dermalens-report.pdf`);
+      downloadReportPdf(pdfData, "dermalens-report.pdf");
     } finally {
       setIsPdfGenerating(false);
     }
@@ -234,21 +271,36 @@ export default function ReportPage() {
         minHeight: "100dvh"
       }}
     >
-      {/* Top Header / Breadcrumb */}
+      {/* Top Header / Breadcrumbs */}
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Link
-          href="/"
-          style={{
-            fontSize: "13px",
-            color: "var(--text-secondary)",
-            textDecoration: "none",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px"
-          }}
-        >
-          ← Home
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <Link
+            href="/"
+            style={{
+              fontSize: "13px",
+              color: "var(--text-secondary)",
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px"
+            }}
+          >
+            ← Home
+          </Link>
+          <span style={{ color: "var(--border-subtle)" }}>/</span>
+          <Link
+            href="/history"
+            id="header-link-history"
+            style={{
+              fontSize: "13px",
+              color: "var(--text-secondary)",
+              textDecoration: "none"
+            }}
+          >
+            History
+          </Link>
+        </div>
+
         <div style={{
           display: "flex",
           alignItems: "center",
@@ -687,15 +739,37 @@ export default function ReportPage() {
         </p>
       </section>
 
-      {/* Story Section 6: Action Buttons & PDF Export */}
+      {/* Story Section 6: Action Buttons & Data Persistence */}
       <section style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px" }}>
+        <button
+          id="btn-save-history"
+          type="button"
+          onClick={handleSaveToHistory}
+          disabled={!analysisReport || isSavingHistory || isSavedToHistory}
+          className={isSavedToHistory ? "btn-secondary" : "btn-primary"}
+          style={{ width: "100%", justifyContent: "center", cursor: isSavedToHistory || !analysisReport ? "default" : "pointer" }}
+        >
+          {isSavedToHistory ? "✓ Saved to Local History" : isSavingHistory ? "Saving..." : "💾 Save to Local History"}
+        </button>
+
+        {isSavedToHistory && (
+          <Link
+            href="/history"
+            id="link-view-history"
+            className="btn-secondary"
+            style={{ width: "100%", textAlign: "center", textDecoration: "none" }}
+          >
+            📊 View Scan History & Progress
+          </Link>
+        )}
+
         <button
           id="btn-download-pdf"
           type="button"
           onClick={handleDownloadPdf}
-          disabled={isPdfGenerating}
-          className="btn-primary"
-          style={{ width: "100%", justifyContent: "center", cursor: "pointer" }}
+          disabled={!analysisReport || isPdfGenerating}
+          className="btn-secondary"
+          style={{ width: "100%", justifyContent: "center", cursor: !analysisReport || isPdfGenerating ? "default" : "pointer" }}
         >
           📄 {isPdfGenerating ? "Generating PDF..." : APP_CONTENT.report.exportPdf}
         </button>

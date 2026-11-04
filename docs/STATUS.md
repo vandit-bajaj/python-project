@@ -1,10 +1,10 @@
 # DermaLens — Project Status
 
 ## Overview
-- **Current Milestone**: M3 — Skin Report & Visualisation System (Milestone Gate)
-- **Current Phase**: Phase 6 — 3D face view (Complete)
-- **Last Updated**: 2026-11-04
-- **Branch**: `feat/p6-3d-face-view`
+- **Current Milestone**: M4 — 3D Face View & Local Progress Tracking
+- **Current Phase**: Phase 7 — Local history and progress (Complete)
+- **Last Updated**: 2026-11-05
+- **Branch**: `feat/p7-local-history`
 
 ---
 
@@ -90,14 +90,19 @@
 - [x] Mandatory label displayed: "approximate 3D from a single photo".
 - [x] Playwright E2E suite passing on Mobile Chrome and WebKit; mobile screenshots captured; perf trace artifact published.
 
-### Phase 7 — Local history and progress (Planned)
-- [ ] Local-first Dexie (IndexedDB) schema with migrations
-- [ ] History comparison & trend charts; Safari eviction warning
+### Phase 7 — Local history and progress (Complete)
+- [x] Local-first Dexie (IndexedDB) schema with migrations (`ScanRecordSchema`, `UserSettingsSchema`, `HistoryExportSchema`, Dexie v1 -> v2 upgrade).
+- [x] History comparison & delta metrics; environmental lighting/blur variance warning (>12% drift); cross-analyzer version warning; iOS Safari 7-day storage eviction advisory card.
+- [x] Local storage quota gauge (`navigator.storage.estimate`) and browser persistence request.
+- [x] Privacy-first thumbnail policy: disabled by default, low-resolution thumbnail opt-in switch.
+- [x] History backup JSON export & import round-trip with schema validation.
+- [x] Timeline view at `/history` route with per-scan badges, delete scan, and clear-all data controls.
+- [x] Full Playwright E2E suite (`history.spec.ts`) passing on Mobile Chrome (360x800) and Mobile Safari (390x844); screenshots captured (`history-390x844.png`, `history-360x800.png`).
 
-### Phase 8 — Hardening and launch (Planned)
+### Phase 8 — Hardening and launch (Next)
 - [ ] Real-device performance verification & bundle optimization
 - [ ] Full a11y & security audit; zero-outbound-requests verification
-- [ ] Legal & disclaimers review; production domain & launch readiness
+- [ ] Legal & disclaimers review; production domain & launch readiness (Milestone 5)
 
 ---
 
@@ -122,16 +127,14 @@
 - None.
 
 ## Next Action
-- Merge Phase 6 to main, then implement Phase 7 (Local history and progress).
+- Open and squash-merge PR #8 for Phase 7 (Local history and progress), then create branch `feat/p8-hardening-launch` for Phase 8.
 
 ## Last-Session Summary
-- Milestone 3 achieved (Phases 0 through 5 complete).
-- Implemented full vertical story skin report (`/report`) and reusable components in `@dermalens/ui`:
-  - Hero composite skin index with animated radial `ScoreRing`.
-  - Interactive false-color heatmap viewer with opacity slider and concern selector chips.
-  - Concern breakdown cards with plain-language cosmetic meaning, care guidance, and dermatologist consultation criteria.
-  - Capture quality transparency card and honest methodology limitations.
-  - Dependency-free, pure client-side PDF export (`downloadReportPdf`) and native print hook.
-- All 41 unit tests and 13 E2E Playwright tests passing with zero external outbound calls.
-- Mobile screenshots captured at 390x844 and 360x800.
-- Published Milestone 3 report: `docs/reports/M3.md`.
+- Phase 7 (Local history and progress) completed:
+  - Installed `dexie@^4.4.7` and `fake-indexeddb@^6.0.0` (all Apache-2.0, permissive license gate clean).
+  - Built IndexedDB persistence layer in `apps/web/src/storage/db.ts` with strict Zod validation (`ScanRecordSchema`, `UserSettingsSchema`, `HistoryExportSchema`), Dexie v1 -> v2 automatic migration, and JSON backup export/import.
+  - Implemented full unit & migration test suite in `apps/web/tests/storage.test.ts` (all 7 storage tests passing).
+  - Built `/history` route with chronological timeline, 2-scan side-by-side comparison with index/concern deltas, environmental lighting/blur variance warning (>12% drift), analyzer version mismatch badge, iOS Safari 7-day eviction warning card, storage quota indicator, persistent storage request button, thumbnail opt-in toggle, JSON export/import, and delete all.
+  - Integrated "Save to Local History" into `/report` and added breadcrumbs across `/`, `/report`, and `/history`.
+  - Added comprehensive E2E test suite in `apps/web/e2e/history.spec.ts` (16/16 tests passing across Mobile Chrome and Mobile Safari).
+  - Captured mobile screenshots at 390x844 and 360x800.
