@@ -8,3 +8,7 @@ export const UI_CONSTANTS = {
 } as const;
 
 export type ThemeMode = "light" | "dark" | "system";
+
+export { ScoreRing, type ScoreRingProps } from "./components/ScoreRing";
+export { RegionPill, type RegionPillProps } from "./components/RegionPill";
+export { HeatmapCanvas, type HeatmapCanvasProps } from "./components/HeatmapCanvas";

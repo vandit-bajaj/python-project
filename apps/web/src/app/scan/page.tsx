@@ -128,9 +128,9 @@ export default function ScanPage() {
             type="button"
             id="btn-proceed-analysis"
             className="btn-primary"
-            onClick={() => alert("Capture verified! Analysis pipeline ready for Phase 2 geometry engine.")}
+            onClick={() => router.push("/report")}
           >
-            Ready for Analysis
+            View Skin Report
           </button>
           <button
             type="button"
