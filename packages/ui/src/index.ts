@@ -12,3 +12,9 @@ export type ThemeMode = "light" | "dark" | "system";
 export { ScoreRing, type ScoreRingProps } from "./components/ScoreRing";
 export { RegionPill, type RegionPillProps } from "./components/RegionPill";
 export { HeatmapCanvas, type HeatmapCanvasProps } from "./components/HeatmapCanvas";
+
+export {
+  Face3DViewer,
+  Face3DFallback,
+  type Face3DViewerProps
+} from "./components/Face3DViewer";

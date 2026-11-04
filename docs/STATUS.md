@@ -2,9 +2,9 @@
 
 ## Overview
 - **Current Milestone**: M3 — Skin Report & Visualisation System (Milestone Gate)
-- **Current Phase**: Phase 5 — Report and visualisation system (Complete)
+- **Current Phase**: Phase 6 — 3D face view (Complete)
 - **Last Updated**: 2026-11-04
-- **Branch**: `feat/p5-report-system`
+- **Branch**: `feat/p6-3d-face-view`
 
 ---
 
@@ -79,9 +79,16 @@
 - [x] Playwright E2E tests passing with zero external outbound requests; mobile screenshots at 390x844 and 360x800.
 - [x] Milestone 3 Report published (`docs/reports/M3.md`).
 
-### Phase 6 — 3D face view (Planned)
-- [ ] Canonical face-mesh Three.js viewer (lazy-loaded chunk)
-- [ ] UV heatmap texture blending shader & touch orbit controls
+### Phase 6 — 3D face view (Complete)
+- [x] Canonical face-mesh Three.js viewer (isolated dynamic chunk via next/dynamic).
+- [x] Biological depth prior + 3-iteration Laplacian neighbor depth smoothing.
+- [x] Custom GLSL shader with color-blind safe thermal false-color heatmap blending.
+- [x] Soft boundary edge fading to prevent cardboard mask artifacts.
+- [x] Touch OrbitControls with clamped azimuth (±45°), polar limits (60°–120°), pinch zoom, and double-tap reset.
+- [x] Tap raycasting to highlight facial regions and expand corresponding cards.
+- [x] Performance safeguards: DPR capped at 2.0, frame-on-demand (0 idle FPS, 60 FPS on touch), WebGL context loss handling, and static fallback.
+- [x] Mandatory label displayed: "approximate 3D from a single photo".
+- [x] Playwright E2E suite passing on Mobile Chrome and WebKit; mobile screenshots captured; perf trace artifact published.
 
 ### Phase 7 — Local history and progress (Planned)
 - [ ] Local-first Dexie (IndexedDB) schema with migrations
@@ -115,7 +122,7 @@
 - None.
 
 ## Next Action
-- Await user go-ahead at Milestone Gate M3; then write `docs/plans/p6.md` and implement Phase 6 (3D face view).
+- Merge Phase 6 to main, then implement Phase 7 (Local history and progress).
 
 ## Last-Session Summary
 - Milestone 3 achieved (Phases 0 through 5 complete).

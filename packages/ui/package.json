@@ -14,7 +14,8 @@
     "lint": "biome lint src/"
   },
   "dependencies": {
-    "@dermalens/analysis-core": "workspace:*"
+    "@dermalens/analysis-core": "workspace:*",
+    "three": "^0.187.0"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@types/three": "^0.187.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "typescript": "^5.7.3"

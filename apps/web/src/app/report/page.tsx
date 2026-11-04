@@ -15,11 +15,21 @@ import {
   DarkCirclesAnalyzer,
   aggregateAnalysis
 } from "@dermalens/analysis-core";
-import { HeatmapCanvas, RegionPill, ScoreRing } from "@dermalens/ui";
+import { HeatmapCanvas, RegionPill, ScoreRing, Face3DFallback } from "@dermalens/ui";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { APP_CONTENT } from "@/content";
 import { downloadReportPdf, printReport, type ReportPdfData } from "@/utils/pdf";
+
+// Lazy-loaded 3D face viewer chunk (SSR disabled)
+const Face3DViewer = dynamic(
+  () => import("@dermalens/ui").then((mod) => mod.Face3DViewer),
+  {
+    ssr: false,
+    loading: () => <Face3DFallback />
+  }
+);
 
 export default function ReportPage() {
   const [analysisReport, setAnalysisReport] = useState<AggregatedAnalysis | null>(null);
@@ -27,6 +37,9 @@ export default function ReportPage() {
   const [overlayOpacity, setOverlayOpacity] = useState<number>(0.85);
   const [expandedConcernId, setExpandedConcernId] = useState<string | null>("redness");
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
+  const [albedoBuffer, setAlbedoBuffer] = useState<Uint8ClampedArray | null>(null);
+  const [selectedRegionHighlight, setSelectedRegionHighlight] = useState<FaceRegionId | null>(null);
 
   useEffect(() => {
     // Generate synthetic UV face texture
@@ -119,6 +132,9 @@ export default function ReportPage() {
       }
     }
 
+    // Retain albedo buffer for 3D face viewer
+    setAlbedoBuffer(uvTextureBuffer);
+
     const input = {
       uvTextureBuffer,
       width,
@@ -139,93 +155,102 @@ export default function ReportPage() {
       }
     };
 
-    const analyzers = [
-      new RednessAnalyzer(),
-      new PigmentationAnalyzer(),
-      new OilinessAnalyzer(),
-      new TextureAnalyzer(),
-      new AcneAnalyzer(),
-      new WrinklesAnalyzer(),
-      new DarkCirclesAnalyzer()
-    ];
+    async function runSuite() {
+      const results: AnalysisResult[] = [];
+      const analyzers = [
+        new RednessAnalyzer(),
+        new PigmentationAnalyzer(),
+        new OilinessAnalyzer(),
+        new TextureAnalyzer(),
+        new AcneAnalyzer(),
+        new WrinklesAnalyzer(),
+        new DarkCirclesAnalyzer()
+      ];
 
-    Promise.all(analyzers.map((a) => a.analyze(input))).then((results) => {
-      const agg = aggregateAnalysis(results, input.qualityReport);
-      setAnalysisReport(agg);
-    });
+      for (const analyzer of analyzers) {
+        const res = await analyzer.analyze(input);
+        results.push(res);
+      }
+
+      const report = aggregateAnalysis(results, input.qualityReport);
+      setAnalysisReport(report);
+    }
+
+    runSuite();
   }, []);
 
-  const activeConcern = analysisReport?.results.find((r) => r.id === selectedConcernId);
+  const activeConcern = analysisReport?.results.find((r) => r.id === selectedConcernId) ?? analysisReport?.results[0];
 
-  const getSeverityBadge = (score: number) => {
-    if (score <= 20) return { label: "Low", color: "var(--status-good)" };
-    if (score <= 45) return { label: "Moderate", color: "var(--status-attention)" };
-    return { label: "Elevated", color: "var(--status-alert)" };
-  };
-
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     if (!analysisReport) return;
     setIsPdfGenerating(true);
 
-    const pdfData: ReportPdfData = {
-      overallScore: analysisReport.overallScore,
-      overallConfidence: Math.round(analysisReport.overallConfidence * 100),
-      primaryConcerns: analysisReport.primaryConcerns.map((id) => {
-        const c = APP_CONTENT.report.concerns[id as keyof typeof APP_CONTENT.report.concerns];
-        return c ? c.label : id;
-      }),
-      date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
-      concerns: analysisReport.results.map((r) => {
-        const c = APP_CONTENT.report.concerns[r.id as keyof typeof APP_CONTENT.report.concerns];
-        const severity = getSeverityBadge(r.overallScore);
-        return {
-          id: r.id,
-          label: c ? c.label : r.id,
-          score: r.overallScore,
-          severity: severity.label
-        };
-      }),
-      qualityMetrics: {
-        lightingEvenness: 0.94,
-        blurScore: 195
-      }
-    };
-
     try {
-      downloadReportPdf(pdfData);
+            const pdfData: ReportPdfData = {
+        overallScore: analysisReport.overallScore,
+        overallConfidence: Math.round(analysisReport.overallConfidence * 100),
+        primaryConcerns: analysisReport.primaryConcerns.map((id) => {
+          const c = APP_CONTENT.report.concerns[id as keyof typeof APP_CONTENT.report.concerns];
+          return c ? c.label : id;
+        }),
+        date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
+        concerns: analysisReport.results.map((r) => {
+          const c = APP_CONTENT.report.concerns[r.id as keyof typeof APP_CONTENT.report.concerns];
+          const severity = getSeverityBadge(r.overallScore);
+          return {
+            id: r.id,
+            label: c ? c.label : r.id,
+            score: r.overallScore,
+            severity: severity.label
+          };
+        }),
+        qualityMetrics: {
+          lightingEvenness: 94,
+          blurScore: 195
+        }
+      };
+
+      downloadReportPdf(pdfData, `dermalens-report.pdf`);
     } finally {
       setIsPdfGenerating(false);
     }
   };
 
+  const getSeverityBadge = (score: number) => {
+    if (score < 25) return { label: "Minimal", color: "var(--status-good)" };
+    if (score < 50) return { label: "Mild", color: "var(--accent-primary)" };
+    if (score < 75) return { label: "Moderate", color: "var(--status-attention)" };
+    return { label: "Marked", color: "var(--status-alert)" };
+  };
+
   return (
     <main
-      className="app-shell"
+      className="mobile-container print-report-container"
       style={{
-        paddingTop: "20px",
-        paddingBottom: "40px",
-        gap: "24px"
+        display: "flex",
+        flexDirection: "column",
+        gap: "20px",
+        padding: "16px",
+        minHeight: "100dvh"
       }}
     >
-      {/* Top Header Navigation */}
+      {/* Top Header / Breadcrumb */}
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Link
-          href="/scan"
-          id="btn-nav-scan"
+          href="/"
           style={{
-            color: "var(--accent-primary)",
+            fontSize: "13px",
+            color: "var(--text-secondary)",
             textDecoration: "none",
-            fontSize: "14px",
-            fontWeight: 600,
-            display: "inline-flex",
+            display: "flex",
             alignItems: "center",
             gap: "4px"
           }}
         >
-          ← {APP_CONTENT.report.retake}
+          ← Home
         </Link>
         <div style={{
-          display: "inline-flex",
+          display: "flex",
           alignItems: "center",
           gap: "4px",
           padding: "3px 8px",
@@ -312,7 +337,7 @@ export default function ReportPage() {
         )}
       </section>
 
-      {/* Story Section 2: Interactive Heatmap Viewer */}
+      {/* Story Section 2: Interactive Heatmap & 3D Face Viewer */}
       <section style={{
         display: "flex",
         flexDirection: "column",
@@ -322,13 +347,62 @@ export default function ReportPage() {
         backgroundColor: "var(--bg-secondary)",
         border: "1px solid var(--border-subtle)"
       }}>
-        <div>
-          <h2 style={{ fontSize: "16px", fontWeight: 700 }}>
-            {APP_CONTENT.report.heatmapHeading}
-          </h2>
-          <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-            {APP_CONTENT.report.heatmapInstruction}
-          </p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "8px" }}>
+          <div>
+            <h2 style={{ fontSize: "16px", fontWeight: 700 }}>
+              {APP_CONTENT.report.heatmapHeading}
+            </h2>
+            <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
+              {viewMode === "2d" ? APP_CONTENT.report.heatmapInstruction : "Rotate face in 3D to inspect regional concern contours"}
+            </p>
+          </div>
+
+          {/* Segmented Control Toggle: 2D vs 3D */}
+          <div
+            id="toggle-view-mode"
+            style={{
+              display: "inline-flex",
+              padding: "3px",
+              backgroundColor: "var(--bg-tertiary)",
+              borderRadius: "var(--radius-full)",
+              border: "1px solid var(--border-subtle)"
+            }}
+          >
+            <button
+              id="btn-view-2d"
+              type="button"
+              onClick={() => setViewMode("2d")}
+              style={{
+                padding: "4px 12px",
+                borderRadius: "var(--radius-full)",
+                border: "none",
+                backgroundColor: viewMode === "2d" ? "var(--accent-primary)" : "transparent",
+                color: viewMode === "2d" ? "var(--accent-foreground)" : "var(--text-secondary)",
+                fontSize: "11px",
+                fontWeight: 600,
+                cursor: "pointer"
+              }}
+            >
+              2D Heatmap
+            </button>
+            <button
+              id="btn-view-3d"
+              type="button"
+              onClick={() => setViewMode("3d")}
+              style={{
+                padding: "4px 12px",
+                borderRadius: "var(--radius-full)",
+                border: "none",
+                backgroundColor: viewMode === "3d" ? "var(--accent-primary)" : "transparent",
+                color: viewMode === "3d" ? "var(--accent-foreground)" : "var(--text-secondary)",
+                fontSize: "11px",
+                fontWeight: 600,
+                cursor: "pointer"
+              }}
+            >
+              3D Face View
+            </button>
+          </div>
         </div>
 
         {/* Concern selector chips */}
@@ -362,28 +436,47 @@ export default function ReportPage() {
           })}
         </div>
 
-        {/* Heatmap Viewer with Opacity Slider */}
+        {/* Visualizer Body: 2D Canvas OR 3D Model */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-          <div
-            id="heatmap-container"
-            style={{
-              position: "relative",
-              width: "190px",
-              height: "190px",
-              borderRadius: "var(--radius-md)",
-              overflow: "hidden",
-              border: "1px solid var(--border-subtle)",
-              backgroundColor: "#0f172a"
-            }}
-          >
-            <HeatmapCanvas
-              uvMapBuffer={activeConcern?.uvMapBuffer}
-              width={activeConcern?.uvMapWidth ?? 128}
-              height={activeConcern?.uvMapHeight ?? 128}
-              displaySize={190}
-              opacity={overlayOpacity}
-            />
-          </div>
+          {viewMode === "2d" ? (
+            <div
+              id="heatmap-container"
+              style={{
+                position: "relative",
+                width: "190px",
+                height: "190px",
+                borderRadius: "var(--radius-md)",
+                overflow: "hidden",
+                border: "1px solid var(--border-subtle)",
+                backgroundColor: "#0f172a"
+              }}
+            >
+              <HeatmapCanvas
+                uvMapBuffer={activeConcern?.uvMapBuffer}
+                width={activeConcern?.uvMapWidth ?? 128}
+                height={activeConcern?.uvMapHeight ?? 128}
+                displaySize={190}
+                opacity={overlayOpacity}
+              />
+            </div>
+          ) : (
+            <div id="face-3d-wrapper" style={{ width: "100%", maxWidth: "340px" }}>
+              <Face3DViewer
+                albedoBuffer={albedoBuffer ?? undefined}
+                albedoWidth={128}
+                albedoHeight={128}
+                heatmapBuffer={activeConcern?.uvMapBuffer}
+                heatmapWidth={activeConcern?.uvMapWidth ?? 128}
+                heatmapHeight={activeConcern?.uvMapHeight ?? 128}
+                overlayOpacity={overlayOpacity}
+                selectedRegion={selectedRegionHighlight}
+                onSelectRegion={(reg) => {
+                  setSelectedRegionHighlight(reg);
+                  setExpandedConcernId(reg);
+                }}
+              />
+            </div>
+          )}
 
           {/* Opacity slider */}
           <div style={{ width: "100%", maxWidth: "260px", display: "flex", flexDirection: "column", gap: "4px" }}>
