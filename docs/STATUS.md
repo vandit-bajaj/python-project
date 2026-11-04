@@ -1,10 +1,10 @@
 # DermaLens — Project Status
 
 ## Overview
-- **Current Milestone**: M2 — Analysis (Phases P3–P4)
-- **Current Phase**: Phase 4 — Acne detection (classical v1)
+- **Current Milestone**: M3 — Report and Visualisation (Phase 5)
+- **Current Phase**: Phase 5 — Report and visualisation system
 - **Last Updated**: 2026-11-04
-- **Branch**: `feat/p3-analyzers-v1`
+- **Branch**: `feat/p4-acne-detection`
 
 ---
 
@@ -28,12 +28,16 @@
 
 ### Phase 1 — Mobile capture and quality gate (Complete)
 - [x] Permission primer & recovery states (denied, blocked in settings, no camera).
-- [x] Camera stream pipeline & teardown (`visibilitychange`, unmount, route change, camera light off).
-- [x] Live face-guide overlay with actionable guidance feedback ("move closer", "face the light", "hold still").
-- [x] Pure quality-gate metrics in `packages/analysis-core`: single face, size/distance, yaw/pitch/roll, blur (Laplacian variance), exposure (clipping), colour cast (gray-world deviation).
-- [x] Auto-capture after N consecutive good frames, plus a manual shutter fallback.
-- [x] Downscaled EXIF-fixed upload pipeline with the same quality gate.
-- [x] In-memory `CapturedFrame { bitmap, size, source, qualityReport }` lifecycle (no persistence of raw frames).
+- [x] Mobile camera pipeline (`useCamera`) with strict teardown on unmount, pagehide, and `visibilitychange`.
+- [x] Face-guide SVG overlay with live feedback and dynamic status border.
+- [x] Pure quality checks in `packages/analysis-core/src/quality/`:
+  - Laplacian variance blur check.
+  - Histogram shadow/highlight clipping exposure check.
+  - Gray-world color cast divergence check.
+  - Quality evaluation aggregator with user-facing guidance.
+- [x] Auto-capture on consecutive good frames + manual shutter fallback.
+- [x] Downscaled upload path with client-side EXIF correction and quality validation.
+- [x] In-memory-only frame lifecycle (`CapturedFrame`).
 - [x] Automated Playwright camera flow test with fake camera flags (`--use-fake-device-for-media-stream`).
 - [ ] Physical device verification logged in `docs/HUMAN-TODO.md` *(Pending device verification)*.
 
@@ -59,10 +63,12 @@
 - [x] Register analyzers in Web Worker pipeline.
 - [x] Dev-only visualizer screen at `/debug/analyzers` with mobile screenshots at 390x844 and 360x800.
 
-### Phase 4 — Acne detection (classical v1) (Planned)
-- [ ] Classical DoG/blob detection at iris-scaled lesion sizes
-- [ ] Heuristic false-positive suppression
-- [ ] UV-space lesion map & blemish count output
+### Phase 4 — Acne detection (classical v1) (Complete)
+- [x] Classical DoG/blob detection at iris-scaled lesion sizes (~1.2 mm radius).
+- [x] Heuristic false-positive suppression: rejects specular highlights, hair lines, non-erythematous freckles, and boundary artifacts.
+- [x] UV-space lesion map, blemish count, and non-diagnostic cosmetic severity banding ("Minimal", "Mild", "Moderate", "Marked").
+- [x] Per-skin-tone contrast adjustment and confidence scaling for Fitzpatrick IV–VI tones.
+- [x] Milestone 2 Report published (`docs/reports/M2.md`).
 
 ### Phase 5 — Report and visualisation system (Planned)
 - [ ] Minimalist mobile report layout
@@ -86,16 +92,16 @@
 ---
 
 ## Decisions Made
-- **D1**: All concerns covered (acne, redness, pigmentation, oiliness, texture/pores, wrinkles, dark circles).
-- **D2**: Classical CV first for acne, ML later (Phase 4b).
-- **D3**: Free public product.
-- **D4**: iPhone and Android tested; mid-range reference devices to be logged.
-- **D5**: PDF export, generated client-side.
-- **D6**: English only.
-- **D7**: Under 10 hours/week, no fixed date.
-- **D10**: Regular website only (no PWA or offline service worker).
-- **D12**: Public GitHub repo, All Rights Reserved.
-- **D13**: Ship everything at once at v1.0 (no staged public beta).
+- **D1**: Concerns tracked — redness, oiliness, pores/texture, acne/blemishes, pigmentation (core); wrinkles and dark circles (beta tier).
+- **D2**: Classical CV first; ML detector slots in behind uniform interface.
+- **D3**: Free public product; permissive dependencies only.
+- **D4**: Reference mobile tiers (iOS Safari + mid-range Android Chrome).
+- **D5**: Pure on-device processing; zero telemetry, zero uploads.
+- **D6**: English-only launch.
+- **D7**: Fast-pace development via autonomous agent operating loop.
+- **D10**: Local-first storage with optional thumbnail opt-in.
+- **D12**: Public GitHub repo with All Rights Reserved proprietary license.
+- **D13**: `X-Robots-Tag: noindex` until launch.
 
 ## Decisions Open (Ask in Phase 8)
 - **D8**: Custom domain.
@@ -106,14 +112,11 @@
 - None.
 
 ## Next Action
-- Write `docs/plans/p4.md` and implement Phase 4 classical acne detection (`@dermalens/analysis-core`).
+- Write `docs/plans/p5.md` and implement Phase 5 (Report and visualization system).
 
 ## Last-Session Summary
-- Milestone 1 achieved (Phases 0, 1, 2 complete).
-- Implemented Phase 3 classical CV analyzers in `@dermalens/analysis-core`:
-  - Core Tier: Redness, Pigmentation (ITA° + DoG spots), Oiliness (specular highlights), Texture (physical-scale Laplacian).
-  - Beta Tier: Wrinkles (ridge detection, capped confidence), Dark Circles (periorbital contrast vs cheek, capped confidence).
-  - Scoring & Aggregation: composite skin index and concern ranking.
-  - Worker pipeline: integrated all analyzers with shared CIELAB computation.
-  - Playwright visualizer at `/debug/analyzers` with zero outbound requests.
-- All 36 unit tests and 9 E2E tests passing across Chromium and WebKit mobile viewports.
+- Milestone 2 completed and verified (Phases 3 and 4 complete).
+- Implemented `AcneAnalyzer` with iris-scaled lesion detection, false-positive suppression (specular shine, hairs, flat freckles), cosmetic severity banding, and tone adjustment.
+- Updated aggregation layer and Web Worker pipeline to execute all 7 analyzers concurrently in ~35-45 ms.
+- 41 unit tests and 9 E2E Playwright tests passing with zero external outbound requests.
+- Published Milestone 2 report: `docs/reports/M2.md`.

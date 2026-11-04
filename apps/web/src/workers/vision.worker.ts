@@ -9,6 +9,7 @@ import {
   TextureAnalyzer,
   WrinklesAnalyzer,
   DarkCirclesAnalyzer,
+  AcneAnalyzer,
   aggregateAnalysis,
   type Point2D,
   type PolygonContours,
@@ -30,6 +31,7 @@ const oilinessAnalyzer = new OilinessAnalyzer();
 const textureAnalyzer = new TextureAnalyzer();
 const wrinklesAnalyzer = new WrinklesAnalyzer();
 const darkCirclesAnalyzer = new DarkCirclesAnalyzer();
+const acneAnalyzer = new AcneAnalyzer();
 
 export const visionWorkerApi = {
   /**
@@ -96,7 +98,7 @@ export const visionWorkerApi = {
   async runAllAnalyzers(input: AnalyzerInput): Promise<AggregatedAnalysis> {
     const startTime = performance.now();
 
-    // Pre-calculate CIELAB once to share across all 6 analyzers
+    // Pre-calculate CIELAB once to share across all 7 analyzers
     const pixelCount = input.width * input.height;
     const labL = new Float32Array(pixelCount);
     const labA = new Float32Array(pixelCount);
@@ -115,6 +117,7 @@ export const visionWorkerApi = {
       pigmentationAnalyzer.analyze(enrichedInput),
       oilinessAnalyzer.analyze(enrichedInput),
       textureAnalyzer.analyze(enrichedInput),
+      acneAnalyzer.analyze(enrichedInput),
       wrinklesAnalyzer.analyze(enrichedInput),
       darkCirclesAnalyzer.analyze(enrichedInput)
     ]);
