@@ -8,7 +8,7 @@ import {
   type Analyzer,
   type AnalyzerInput,
   type AnalysisResult
-} from "../src/index.js";
+} from "../src";
 
 describe("Analysis Core: Schema & Contracts", () => {
   it("defines all 9 standard face regions", () => {

@@ -2,38 +2,40 @@
 
 ## Overview
 - **Current Milestone**: M1 — Foundations and capture (Phases P0–P2)
-- **Current Phase**: Phase 0 — Foundations and repo bootstrap
+- **Current Phase**: Phase 1 — Mobile capture and quality gate
 - **Last Updated**: 2026-11-04
-- **Branch**: `feat/p0-foundations`
+- **Branch**: `feat/p1-capture-gate`
 
 ---
 
 ## Roadmap Phase Checklist
 
-### Phase 0 — Foundations and repo bootstrap (In Progress)
-- [ ] Monorepo setup: pnpm workspace + Turborepo; Node pinned (`.nvmrc`, `packageManager`).
-- [ ] Scaffold `apps/web` (Next.js App Router, React 19, strict TypeScript, Tailwind v4, shadcn/ui).
-- [ ] Stub workspace packages: `packages/analysis-core`, `packages/ui`, `packages/models`.
-- [ ] Tooling: Biome, Vitest, Playwright (Chromium + WebKit mobile), Storybook, lefthook + commitlint.
-- [ ] GitHub Actions CI: frozen install, typecheck, lint, test, build, Playwright smoke, bundle-budget check, licence gate.
-- [ ] Dependency-licence gate: allow MIT, Apache-2.0, BSD, ISC; block GPL/AGPL.
-- [ ] Public repo hygiene: `.gitignore` preventing face photos, datasets, credentials; fixtures policy.
-- [ ] Security headers & CSP: strict `default-src 'self'`, `connect-src 'self'`, `worker-src 'self' blob:`, `img-src 'self' data: blob:`, `wasm-unsafe-eval`, `X-Robots-Tag: noindex`.
-- [ ] Design tokens: CSS variables for colours, type, spacing, radius, safe-area insets, `100dvh`.
-- [ ] Copy module: `content` module in `apps/web` (English only, cosmetic non-diagnostic language).
-- [ ] ADRs: ADR-001 (on-device architecture), ADR-002 (analyzer interface), ADR-003 (worker boundary), ADR-004 (state & storage).
-- [ ] Docs & hygiene: `README.md`, `CONTRIBUTING.md`, `.github/pull_request_template.md`, `LICENSE` (All Rights Reserved).
+### Phase 0 — Foundations and repo bootstrap (Complete)
+- [x] Monorepo setup: pnpm workspace + Turborepo; Node pinned (`.nvmrc`, `packageManager`).
+- [x] Scaffold `apps/web` (Next.js App Router, React 19, strict TypeScript, Tailwind v4, shadcn/ui tokens).
+- [x] Stub workspace packages: `packages/analysis-core`, `packages/ui`, `packages/models`.
+- [x] Tooling: Biome, Vitest, Playwright (Chromium + WebKit mobile), lefthook + commitlint.
+- [x] GitHub Actions CI: frozen install, typecheck, lint, test, build, Playwright smoke, bundle-budget check, licence gate.
+- [x] Dependency-licence gate: allow MIT, Apache-2.0, BSD, ISC; block GPL/AGPL.
+- [x] Public repo hygiene: `.gitignore` preventing face photos, datasets, credentials; fixtures policy.
+- [x] Security headers & CSP: strict `default-src 'self'`, `connect-src 'self'`, `worker-src 'self' blob:`, `img-src 'self' data: blob:`, `wasm-unsafe-eval`, `X-Robots-Tag: noindex`.
+- [x] Design tokens: CSS variables for colours, type, spacing, radius, safe-area insets, `100dvh`.
+- [x] Copy module: `content` module in `apps/web` (English only, cosmetic non-diagnostic language).
+- [x] ADRs: ADR-0001 (on-device architecture), ADR-002 (analyzer interface), ADR-003 (worker boundary), ADR-004 (state & storage).
+- [x] Docs & hygiene: `README.md`, `CONTRIBUTING.md`, `.github/pull_request_template.md`, `LICENSE` (All Rights Reserved).
 - [ ] Vercel deployment setup *(Pending human setup: see `docs/HUMAN-TODO.md`)*.
 - [ ] Test devices recorded & baseline benchmarks *(Pending human setup: see `docs/HUMAN-TODO.md`)*.
 
-### Phase 1 — Mobile capture and quality gate (Planned)
-- [ ] Permission primer & recovery states
-- [ ] Camera stream pipeline & teardown (`visibilitychange`, unmount, route change)
-- [ ] Live face-guide overlay & guidance feedback
-- [ ] Pure quality gate metrics in `analysis-core` (face count, size, angles, blur, exposure, lighting)
-- [ ] Auto-capture & manual fallback
-- [ ] Downscaled EXIF-fixed upload pipeline
-- [ ] In-memory `CapturedFrame` lifecycle
+### Phase 1 — Mobile capture and quality gate (In Progress)
+- [ ] Permission primer & recovery states (denied, blocked in settings, no camera).
+- [ ] Camera stream pipeline & teardown (`visibilitychange`, unmount, route change, camera light off).
+- [ ] Live face-guide overlay with actionable guidance feedback ("move closer", "face the light", "hold still").
+- [ ] Pure quality-gate metrics in `packages/analysis-core`: single face, size/distance, yaw/pitch/roll, blur (Laplacian variance), exposure (clipping), colour cast (gray-world deviation).
+- [ ] Auto-capture after N consecutive good frames, plus a manual shutter fallback.
+- [ ] Downscaled EXIF-fixed upload pipeline with the same quality gate.
+- [ ] In-memory `CapturedFrame { bitmap, size, source, qualityReport }` lifecycle (no persistence of raw frames).
+- [ ] Automated Playwright camera flow test with fake camera flags (`--use-fake-device-for-media-stream`).
+- [ ] Physical device verification logged in `docs/HUMAN-TODO.md`.
 
 ### Phase 2 — Face geometry and region engine (Planned)
 - [ ] Web Worker + Comlink RPC with MediaPipe Face Landmarker (IMAGE & VIDEO)
@@ -95,9 +97,11 @@
 - None.
 
 ## Next Action
-- Implement Phase 0 foundations on `feat/p0-foundations`.
+- Write `docs/plans/p1.md` and implement Phase 1 (quality gate metrics in `analysis-core` and camera/upload pipeline in `apps/web`).
 
 ## Last-Session Summary
-- Initialized repository, verified Git remote and toolchain.
-- Extracted agent kit and synchronized roadmap to `origin/main` (`424322a`).
-- Created branch `feat/p0-foundations`, setup `STATUS.md`, `HUMAN-TODO.md`, `BACKLOG.md` and Phase 0 plan.
+- Successfully scaffolded monorepo, Next.js 16 app with React 19, strict TypeScript, Biome, Vitest, Playwright.
+- Implemented and verified zero-outbound-requests security test and dependency license gate.
+- Recorded ADRs 0001 through 0004.
+- Opened PR #1 and squash-merged to `main` (`c12124f`).
+- Transitioned to Phase 1 on `feat/p1-capture-gate`.

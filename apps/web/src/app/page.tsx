@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { APP_CONTENT } from "@/content";
 
 export default function HomePage() {
@@ -67,23 +68,23 @@ export default function HomePage() {
 
       {/* Primary Actions & Disclaimers */}
       <footer style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <button
-          type="button"
+        <Link
+          href="/scan"
           id="btn-scan-camera"
           className="btn-primary"
-          style={{ width: "100%" }}
+          style={{ width: "100%", textAlign: "center" }}
         >
           {APP_CONTENT.landing.ctaStartCamera}
-        </button>
+        </Link>
 
-        <button
-          type="button"
+        <Link
+          href="/scan"
           id="btn-upload-photo"
           className="btn-secondary"
-          style={{ width: "100%" }}
+          style={{ width: "100%", textAlign: "center" }}
         >
           {APP_CONTENT.landing.ctaUploadPhoto}
-        </button>
+        </Link>
 
         <p style={{
           fontSize: "11px",
