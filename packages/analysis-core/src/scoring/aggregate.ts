@@ -10,12 +10,14 @@ import { clamp, round } from "../analyzers/utils";
  * Weights assigned to individual analyzers when computing the composite skin index.
  * Core tier analyzers receive standard weight (1.0), whereas Beta tier analyzers
  * have reduced weight (0.5) due to lower selfie signal-to-noise ratio.
+ * Acne receives 1.2 weight reflecting primary cosmetic priority.
  */
 const ANALYZER_WEIGHTS: Record<string, number> = {
   redness: 1.0,
   pigmentation: 1.0,
   oiliness: 0.9,
   texture: 1.0,
+  acne: 1.2,
   wrinkles: 0.5,
   darkCircles: 0.5
 };

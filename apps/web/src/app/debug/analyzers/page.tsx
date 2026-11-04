@@ -10,10 +10,10 @@ import {
   PigmentationAnalyzer,
   OilinessAnalyzer,
   TextureAnalyzer,
+  AcneAnalyzer,
   WrinklesAnalyzer,
   DarkCirclesAnalyzer,
-  aggregateAnalysis,
-  createEmptyRegionScores
+  aggregateAnalysis
 } from "@dermalens/analysis-core";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -23,6 +23,7 @@ const analyzers = [
   { id: "pigmentation", label: "Pigmentation", instance: new PigmentationAnalyzer() },
   { id: "oiliness", label: "Oiliness", instance: new OilinessAnalyzer() },
   { id: "texture", label: "Texture / Pores", instance: new TextureAnalyzer() },
+  { id: "acne", label: "Blemishes / Acne", instance: new AcneAnalyzer() },
   { id: "wrinkles", label: "Wrinkles (Beta)", instance: new WrinklesAnalyzer() },
   { id: "darkCircles", label: "Dark Circles (Beta)", instance: new DarkCirclesAnalyzer() }
 ];
@@ -117,6 +118,29 @@ export default function DebugAnalyzersPage() {
       }
     }
 
+    // Inject simulated blemish papules in chin & left cheek
+    const blemishSpots = [
+      { cx: 24, cy: 60 },
+      { cx: 32, cy: 70 },
+      { cx: 64, cy: 98 },
+      { cx: 72, cy: 104 }
+    ];
+
+    for (const spot of blemishSpots) {
+      for (let dy = -3; dy <= 3; dy++) {
+        for (let dx = -3; dx <= 3; dx++) {
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist <= 3) {
+            const pIdx = ((spot.cy + dy) * width + (spot.cx + dx)) * 4;
+            const factor = 1 - dist / 4;
+            uvTextureBuffer[pIdx] = Math.min(255, (uvTextureBuffer[pIdx] ?? 0) + Math.round(50 * factor));
+            uvTextureBuffer[pIdx + 1] = Math.max(0, (uvTextureBuffer[pIdx + 1] ?? 0) - Math.round(20 * factor));
+            uvTextureBuffer[pIdx + 2] = Math.max(0, (uvTextureBuffer[pIdx + 2] ?? 0) - Math.round(20 * factor));
+          }
+        }
+      }
+    }
+
     const input = {
       uvTextureBuffer,
       width,
@@ -164,7 +188,6 @@ export default function DebugAnalyzersPage() {
     for (let i = 0; i < width * height; i++) {
       const val = buf ? buf[i] ?? 0 : 0;
       const idx = i * 4;
-      // Thermal / heat color map: low = dark slate, med = amber, high = crimson
       if (val < 40) {
         imgData.data[idx] = 15;
         imgData.data[idx + 1] = 23;
@@ -239,7 +262,7 @@ export default function DebugAnalyzersPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h2 style={{ fontSize: "16px", fontWeight: 700, textTransform: "capitalize" }}>
-              {activeResult?.id ?? selectedAnalyzerId}
+              {activeResult?.id === "acne" ? "Estimated Blemishes" : activeResult?.id ?? selectedAnalyzerId}
             </h2>
             <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
               Version {activeResult?.version ?? "1.0.0"}
@@ -289,6 +312,37 @@ export default function DebugAnalyzersPage() {
             style={{ display: "block", width: "160px", height: "160px", imageRendering: "pixelated" }}
           />
         </div>
+
+        {/* Metadata Details for Acne / Pigmentation / etc */}
+        {activeResult?.metadata && (
+          <div style={{
+            padding: "8px 12px",
+            borderRadius: "var(--radius-sm)",
+            backgroundColor: "var(--bg-tertiary)",
+            fontSize: "12px",
+            display: "flex",
+            justifyContent: "space-between"
+          }}>
+            {activeResult.id === "acne" && (
+              <>
+                <span>Estimated Count: <strong>{String(activeResult.metadata.estimatedCount)}</strong></span>
+                <span>Severity Band: <strong>{String(activeResult.metadata.severityBand)}</strong></span>
+              </>
+            )}
+            {activeResult.id === "pigmentation" && (
+              <>
+                <span>Tone Category: <strong>{String(activeResult.metadata.toneCategory)}</strong></span>
+                <span>ITA°: <strong>{String(activeResult.metadata.itaAngle)}</strong></span>
+              </>
+            )}
+            {activeResult.id === "oiliness" && (
+              <>
+                <span>Specular Fraction: <strong>{String(activeResult.metadata.specularPixelFraction)}</strong></span>
+                <span>T-Zone Score: <strong>{String(activeResult.metadata.tZoneScore)}</strong></span>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Confidence & Region breakdown */}
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>

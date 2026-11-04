@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("DermaLens Analyzers v1 Visualizer E2E", () => {
-  test("renders analyzers visualizer, computes scores, and validates zero outbound requests", async ({ page }, testInfo) => {
+  test("renders analyzers visualizer, computes scores, and validates zero outbound requests", async ({ page }) => {
     const outboundRequests: string[] = [];
     page.on("request", (req) => {
       const url = req.url();
@@ -17,13 +17,19 @@ test.describe("DermaLens Analyzers v1 Visualizer E2E", () => {
     const canvas = page.locator("#heatmap-canvas");
     await expect(canvas).toBeVisible();
 
-    // Verify all 6 analyzer chips exist
+    // Verify all analyzer chips exist
     await expect(page.locator("#btn-analyzer-redness")).toBeVisible();
     await expect(page.locator("#btn-analyzer-pigmentation")).toBeVisible();
     await expect(page.locator("#btn-analyzer-oiliness")).toBeVisible();
     await expect(page.locator("#btn-analyzer-texture")).toBeVisible();
+    await expect(page.locator("#btn-analyzer-acne")).toBeVisible();
     await expect(page.locator("#btn-analyzer-wrinkles")).toBeVisible();
     await expect(page.locator("#btn-analyzer-darkCircles")).toBeVisible();
+
+    // Check acne / blemish detection
+    await page.locator("#btn-analyzer-acne").click();
+    await expect(page.getByText("Estimated Count:")).toBeVisible();
+    await expect(page.getByText("Severity Band:")).toBeVisible();
 
     // Check wrinkles (Beta tier)
     await page.locator("#btn-analyzer-wrinkles").click();

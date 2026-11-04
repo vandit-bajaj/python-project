@@ -100,5 +100,10 @@ export {
 } from "./analyzers/darkCircles";
 
 export {
+  AcneAnalyzer,
+  type DetectedBlemish
+} from "./analyzers/acne";
+
+export {
   aggregateAnalysis
 } from "./scoring/aggregate";
