@@ -53,19 +53,19 @@ export const APP_CONTENT = {
       redness: {
         label: "Facial Redness",
         meaning: "Relative surface erythema and vascular flush measured via CIELAB a* elevation relative to your skin baseline.",
-        care: "Consider gentle, fragrance-free barrier moisturizers, avoid harsh physical scrubs, and protect your skin daily with broad-spectrum SPF 30+.",
+        care: "Consider gentle, fragrance-free barrier moisturizers, avoid harsh physical scrubs, and protect your skin daily with broad-spectrum sunscreen.",
         whenToConsult: "If redness is sudden, painful, burning, accompanied by swelling, or persistent across days, consult a certified dermatologist."
       },
       pigmentation: {
         label: "Tone & Pigmentation",
         meaning: "Overall tone uniformity (Individual Typology Angle) and localized dark spot contrast evaluated via Difference-of-Gaussians.",
-        care: "Incorporate daily broad-spectrum sun protection, antioxidant serums (like vitamin C or niacinamide), and avoid picking or scratching blemishes.",
+        care: "Incorporate daily broad-spectrum sun protection (SPF 50+ PA++++ recommended for high UV indices), antioxidant serums (like vitamin C or niacinamide), and avoid picking blemishes to minimize post-inflammatory hyperpigmentation.",
         whenToConsult: "If you notice new, irregular, changing, bleeding, or asymmetric spots (ABCDE criteria), schedule an in-person dermatology check."
       },
       oiliness: {
         label: "Surface Shine / Sebum",
         meaning: "Specular reflection density and highlight intensity across facial zones, with clinical weighting in the T-zone.",
-        care: "Use lightweight gel-based moisturizers, gentle non-stripping foaming cleansers, and oil-free daily sunscreen.",
+        care: "Use lightweight non-comedogenic gel moisturizers, gentle non-stripping foaming cleansers, and matte oil-free sunscreen suitable for humid climates.",
         whenToConsult: "If excessive oil is accompanied by intense flaking, itching, or persistent scaling along eyebrows or nasolabial folds, consult a specialist."
       },
       texture: {

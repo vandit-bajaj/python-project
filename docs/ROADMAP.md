@@ -474,9 +474,9 @@ Guided multi-angle capture for better 3D; routine and progress insights; dermato
 | 2026-11-04 | D5 | PDF export, client-side |
 | 2026-11-04 | D6 | English only |
 | 2026-11-04 | D7 | Under 10 hours/week, no fixed launch date |
-| | D8 | |
-| | D9 | |
+| 2026-11-05 | D8 | dermalens.vercel.app (default Vercel domain for v1.0) |
+| 2026-11-05 | D9 | India-first focus (Fitzpatrick IV–VI calibration, high UV/humidity context) |
 | 2026-11-04 | D10 | Regular website only, no PWA or offline mode |
-| | D11 | |
+| 2026-11-05 | D11 | Strict zero telemetry (0 scripts, 0 cookies, 0 trackers) |
 | 2026-11-04 | D12 | Public repo, all rights reserved |
 | 2026-11-04 | D13 | Ship everything at once at v1.0, no staged public beta |
