@@ -7,6 +7,8 @@ export {
   type QualityReport,
   AnalysisResultSchema,
   type AnalysisResult,
+  AggregatedAnalysisSchema,
+  type AggregatedAnalysis,
   type AnalyzerInput,
   type Analyzer
 } from "./types";
@@ -70,3 +72,33 @@ export {
   type UVCoordinate,
   type CanonicalUVTexture
 } from "./geometry/unwrap";
+
+export {
+  RednessAnalyzer
+} from "./analyzers/redness";
+
+export {
+  PigmentationAnalyzer,
+  computeITA,
+  classifyITATone
+} from "./analyzers/pigmentation";
+
+export {
+  OilinessAnalyzer
+} from "./analyzers/oiliness";
+
+export {
+  TextureAnalyzer
+} from "./analyzers/texture";
+
+export {
+  WrinklesAnalyzer
+} from "./analyzers/wrinkles";
+
+export {
+  DarkCirclesAnalyzer
+} from "./analyzers/darkCircles";
+
+export {
+  aggregateAnalysis
+} from "./scoring/aggregate";

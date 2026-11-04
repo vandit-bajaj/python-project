@@ -1,10 +1,10 @@
 # DermaLens — Project Status
 
 ## Overview
-- **Current Milestone**: M1 — Foundations and capture (Phases P0–P2)
-- **Current Phase**: Phase 2 — Face geometry and region engine
+- **Current Milestone**: M2 — Analysis (Phases P3–P4)
+- **Current Phase**: Phase 4 — Acne detection (classical v1)
 - **Last Updated**: 2026-11-04
-- **Branch**: `feat/p2-geometry-engine`
+- **Branch**: `feat/p3-analyzers-v1`
 
 ---
 
@@ -37,19 +37,27 @@
 - [x] Automated Playwright camera flow test with fake camera flags (`--use-fake-device-for-media-stream`).
 - [ ] Physical device verification logged in `docs/HUMAN-TODO.md` *(Pending device verification)*.
 
-### Phase 2 — Face geometry and region engine (In Progress)
-- [ ] Web Worker + Comlink RPC pipeline.
-- [ ] 8 facial region index sets (forehead, cheeks, nose, chin, perioral, under-eyes, T-zone, U-zone) + debug visualizer.
-- [ ] Morphological skin mask excluding hair, eyes, lips, nostrils.
-- [ ] Iris scale normalisation (px -> mm).
-- [ ] Canonical UV unwrap and normalisation pipeline.
-- [ ] Color pipeline: sRGB -> linear -> CIELAB color space conversions.
+### Phase 2 — Face geometry and region engine (Complete)
+- [x] Web Worker + Comlink RPC pipeline.
+- [x] 8 facial region index sets (forehead, cheeks, nose, chin, perioral, under-eyes, T-zone, U-zone) + debug visualizer.
+- [x] Morphological skin mask excluding hair, eyes, lips, nostrils.
+- [x] Iris scale normalisation (px -> mm).
+- [x] Canonical UV unwrap and normalisation pipeline.
+- [x] Color pipeline: sRGB -> linear -> CIELAB color space conversions.
+- [x] Dev-only visualizer screen at `/debug/regions`.
+- [x] Milestone 1 Report published (`docs/reports/M1.md`).
 
-### Phase 3 — Analyzers v1 (classical CV) (Planned)
-- [ ] Core analyzers: redness, pigmentation, oiliness, texture/pores
-- [ ] Beta tier: wrinkles, dark circles
-- [ ] Aggregate scoring, confidence derivation & Zod schemas
-- [ ] Synthetic-perturbation, test-retest, cross-lighting tests
+### Phase 3 — Analyzers v1 (classical CV) (Complete)
+- [x] Core analyzer: Redness (CIELAB a* elevation within skin mask, area fraction + intensity).
+- [x] Core analyzer: Pigmentation (Individual Typology Angle ITA° + dark spot local contrast via Difference of Gaussians).
+- [x] Core analyzer: Oiliness (Specular highlight reflection detection: high L*, low chroma, T-zone weighted).
+- [x] Core analyzer: Texture / Pores (High-frequency energy via Laplacian filter normalized by physical mm scale).
+- [x] Beta tier: Wrinkles (Ridge filtering in forehead / periorbital regions).
+- [x] Beta tier: Dark circles (Periorbital L*/chroma relative to cheek baseline).
+- [x] Aggregate scoring layer & confidence weighting derived from quality report.
+- [x] Synthetic-perturbation tests: monotonic score response for all 6 concerns.
+- [x] Register analyzers in Web Worker pipeline.
+- [x] Dev-only visualizer screen at `/debug/analyzers` with mobile screenshots at 390x844 and 360x800.
 
 ### Phase 4 — Acne detection (classical v1) (Planned)
 - [ ] Classical DoG/blob detection at iris-scaled lesion sizes
@@ -98,10 +106,14 @@
 - None.
 
 ## Next Action
-- Write `docs/plans/p2.md` and implement Phase 2 (Face geometry, region engine, skin mask, and CIELAB colour pipeline in `packages/analysis-core` and Web Worker in `apps/web`).
+- Write `docs/plans/p4.md` and implement Phase 4 classical acne detection (`@dermalens/analysis-core`).
 
 ## Last-Session Summary
-- Implemented and verified Phase 1: pure quality-gate algorithms (Laplacian blur variance, histogram exposure clipping, color cast analysis), camera pipeline with strict track teardown, guidance overlay with auto-capture & shutter, and upload path.
-- Automated fake-camera Playwright tests passed cleanly with zero external outbound requests.
-- Merged PR #2 into `main` (`64f014e`).
-- Transitioned to Phase 2 on `feat/p2-geometry-engine`.
+- Milestone 1 achieved (Phases 0, 1, 2 complete).
+- Implemented Phase 3 classical CV analyzers in `@dermalens/analysis-core`:
+  - Core Tier: Redness, Pigmentation (ITA° + DoG spots), Oiliness (specular highlights), Texture (physical-scale Laplacian).
+  - Beta Tier: Wrinkles (ridge detection, capped confidence), Dark Circles (periorbital contrast vs cheek, capped confidence).
+  - Scoring & Aggregation: composite skin index and concern ranking.
+  - Worker pipeline: integrated all analyzers with shared CIELAB computation.
+  - Playwright visualizer at `/debug/analyzers` with zero outbound requests.
+- All 36 unit tests and 9 E2E tests passing across Chromium and WebKit mobile viewports.
