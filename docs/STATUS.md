@@ -1,10 +1,10 @@
 # DermaLens — Project Status
 
 ## Overview
-- **Current Milestone**: M3 — Report and Visualisation (Phase 5)
-- **Current Phase**: Phase 5 — Report and visualisation system
+- **Current Milestone**: M3 — Skin Report & Visualisation System (Milestone Gate)
+- **Current Phase**: Phase 5 — Report and visualisation system (Complete)
 - **Last Updated**: 2026-11-04
-- **Branch**: `feat/p4-acne-detection`
+- **Branch**: `feat/p5-report-system`
 
 ---
 
@@ -70,11 +70,14 @@
 - [x] Per-skin-tone contrast adjustment and confidence scaling for Fitzpatrick IV–VI tones.
 - [x] Milestone 2 Report published (`docs/reports/M2.md`).
 
-### Phase 5 — Report and visualisation system (Planned)
-- [ ] Minimalist mobile report layout
-- [ ] Perceptually uniform heatmaps & SVG score rings
-- [ ] Storybook components & automated a11y testing
-- [ ] Pure client-side PDF export
+### Phase 5 — Report and visualisation system (Complete)
+- [x] Minimalist mobile report layout (`/report` route with vertical story flow).
+- [x] Perceptually uniform heatmaps (`HeatmapCanvas` with color-blind safe thermal palette) & SVG score rings (`ScoreRing`).
+- [x] Reusable UI components in `@dermalens/ui` (`ScoreRing`, `RegionPill`, `HeatmapCanvas`).
+- [x] Pure client-side PDF export (zero dependencies, in-browser PDF 1.4 emitter) & print styles.
+- [x] Concern breakdown cards with general care guidance & dermatologist consultation criteria.
+- [x] Playwright E2E tests passing with zero external outbound requests; mobile screenshots at 390x844 and 360x800.
+- [x] Milestone 3 Report published (`docs/reports/M3.md`).
 
 ### Phase 6 — 3D face view (Planned)
 - [ ] Canonical face-mesh Three.js viewer (lazy-loaded chunk)
@@ -112,11 +115,16 @@
 - None.
 
 ## Next Action
-- Write `docs/plans/p5.md` and implement Phase 5 (Report and visualization system).
+- Await user go-ahead at Milestone Gate M3; then write `docs/plans/p6.md` and implement Phase 6 (3D face view).
 
 ## Last-Session Summary
-- Milestone 2 completed and verified (Phases 3 and 4 complete).
-- Implemented `AcneAnalyzer` with iris-scaled lesion detection, false-positive suppression (specular shine, hairs, flat freckles), cosmetic severity banding, and tone adjustment.
-- Updated aggregation layer and Web Worker pipeline to execute all 7 analyzers concurrently in ~35-45 ms.
-- 41 unit tests and 9 E2E Playwright tests passing with zero external outbound requests.
-- Published Milestone 2 report: `docs/reports/M2.md`.
+- Milestone 3 achieved (Phases 0 through 5 complete).
+- Implemented full vertical story skin report (`/report`) and reusable components in `@dermalens/ui`:
+  - Hero composite skin index with animated radial `ScoreRing`.
+  - Interactive false-color heatmap viewer with opacity slider and concern selector chips.
+  - Concern breakdown cards with plain-language cosmetic meaning, care guidance, and dermatologist consultation criteria.
+  - Capture quality transparency card and honest methodology limitations.
+  - Dependency-free, pure client-side PDF export (`downloadReportPdf`) and native print hook.
+- All 41 unit tests and 13 E2E Playwright tests passing with zero external outbound calls.
+- Mobile screenshots captured at 390x844 and 360x800.
+- Published Milestone 3 report: `docs/reports/M3.md`.
