@@ -1,10 +1,10 @@
 # DermaLens — Project Status
 
 ## Overview
-- **Current Milestone**: M5 — Launch Readiness (Milestone Gate)
-- **Current Phase**: Phase 8 — Hardening and launch (Complete pending M5 sign-off)
+- **Current Milestone**: M5 — Launch Readiness (Complete)
+- **Current Phase**: Phase 8 — Hardening and launch (Complete)
 - **Last Updated**: 2026-11-05
-- **Branch**: `feat/p8-hardening-launch`
+- **Branch**: `main`
 
 ---
 
@@ -119,27 +119,26 @@
 - **D5**: Pure on-device processing; zero telemetry, zero uploads.
 - **D6**: English-only launch.
 - **D7**: Fast-pace development via autonomous agent operating loop.
+- **D8**: `dermalens.vercel.app` (default Vercel deployment URL for v1.0 release).
+- **D9**: India-first target market (Fitzpatrick IV–VI calibration, high UV index & humidity care guidance).
 - **D10**: Local-first storage with optional thumbnail opt-in.
+- **D11**: Strict zero telemetry (0 analytics scripts, 0 cookies, 0 trackers — 100% on-device guarantee).
 - **D12**: Public GitHub repo with All Rights Reserved proprietary license.
 - **D13**: `X-Robots-Tag: noindex` until launch.
 
-## Decisions Open for M5 Sign-Off
-- **D8**: Custom domain.
-- **D9**: Target market (India-first vs global scope).
-- **D11**: Analytics / error tracking (default is none).
+## Decisions Open
+- None (All 13 roadmap decisions D1 through D13 formally resolved).
 
 ## Blockers
 - None.
 
 ## Next Action
-- Await user go-ahead on Milestone 5 Report (`docs/reports/M5.md`) and decisions D8, D9, D11.
+- Merge Milestone 5 launch finalization PR to `main` and tag `v1.0.0`.
 
 ## Last-Session Summary
-- Phase 8 (Hardening and Launch) completed:
-  - Added accessibility skip links (`.skip-link`) and full `@media (prefers-reduced-motion)` rules across the application.
-  - Implemented Next.js client and root error boundaries (`error.tsx`, `global-error.tsx`) and styled 404 handler (`not-found.tsx`).
-  - Added full scientific transparency and legal routes: `/how-it-measures` (classical algorithms, iris scale calibration, Fitzpatrick fairness), `/privacy` (zero-knowledge policy), and `/terms` (non-diagnostic scope).
-  - Configured Next.js `robots.ts` (enforcing pre-launch `noindex`) and `sitemap.ts`.
-  - All 52 unit tests, 18 Playwright E2E tests, and static builds (13 routes) passing cleanly with zero outbound network requests.
-  - Mobile screenshots captured and synced to session artifacts.
+- Milestone 5 achieved & finalized:
+  - Formally resolved decisions D8 (domain: `dermalens.vercel.app`), D9 (India-first market focus with Fitzpatrick IV–VI calibration), and D11 (strict zero telemetry).
+  - Authored ADR-0005 (`docs/adr/0005-launch-decisions-d8-d9-d11.md`).
+  - Updated `docs/ROADMAP.md` decision log and refined skincare care guidance in `apps/web/src/content/index.ts` to reflect high UV index and humidity care.
+  - All 52 unit tests, 18 Playwright E2E tests, and static builds across 13 routes verified passing with zero outbound network calls.
   - Published Milestone 5 Report: `docs/reports/M5.md`.
