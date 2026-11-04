@@ -93,6 +93,14 @@ export const APP_CONTENT = {
         whenToConsult: "If under-eye discoloration is accompanied by significant unilateral swelling, pain, or vision changes, seek medical care."
       }
     }
+  },
+  transparency: {
+    howItMeasuresTitle: "How DermaLens Measures Your Skin",
+    howItMeasuresSubtitle: "An honest, technical breakdown of our classical computer vision algorithms, physical calibration, and scientific limitations.",
+    privacyPolicyTitle: "Zero-Knowledge Privacy Policy",
+    privacyPolicySubtitle: "Photos never leave your phone. No accounts, no cookies, no tracking scripts, no cloud backend.",
+    termsTitle: "Terms of Use & Cosmetic Disclaimer",
+    termsSubtitle: "DermaLens is an educational skincare wellness tool, not a diagnostic medical service."
   }
 } as const;
 

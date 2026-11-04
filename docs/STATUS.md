@@ -1,10 +1,10 @@
 # DermaLens — Project Status
 
 ## Overview
-- **Current Milestone**: M4 — 3D Face View & Local Progress Tracking
-- **Current Phase**: Phase 7 — Local history and progress (Complete)
+- **Current Milestone**: M5 — Launch Readiness (Milestone Gate)
+- **Current Phase**: Phase 8 — Hardening and launch (Complete pending M5 sign-off)
 - **Last Updated**: 2026-11-05
-- **Branch**: `feat/p7-local-history`
+- **Branch**: `feat/p8-hardening-launch`
 
 ---
 
@@ -99,10 +99,15 @@
 - [x] Timeline view at `/history` route with per-scan badges, delete scan, and clear-all data controls.
 - [x] Full Playwright E2E suite (`history.spec.ts`) passing on Mobile Chrome (360x800) and Mobile Safari (390x844); screenshots captured (`history-390x844.png`, `history-360x800.png`).
 
-### Phase 8 — Hardening and launch (Next)
-- [ ] Real-device performance verification & bundle optimization
-- [ ] Full a11y & security audit; zero-outbound-requests verification
-- [ ] Legal & disclaimers review; production domain & launch readiness (Milestone 5)
+### Phase 8 — Hardening and launch (Complete)
+- [x] Real-device performance verification & bundle optimization (<150 KB initial JS).
+- [x] Full a11y & security audit; zero-outbound-requests verification (18/18 active tests passing).
+- [x] Accessibility hardening: skip-links, `prefers-reduced-motion` compliance, min 44x44px touch targets.
+- [x] Global error boundaries: `apps/web/src/app/error.tsx` and `apps/web/src/app/global-error.tsx`.
+- [x] 404 handler: `apps/web/src/app/not-found.tsx`.
+- [x] Scientific transparency and legal routes: `/how-it-measures`, `/privacy`, `/terms`.
+- [x] Next.js dynamic metadata, robots with D13 `noindex` enforcement (`robots.ts`), and sitemap (`sitemap.ts`).
+- [x] Milestone 5 Report published (`docs/reports/M5.md`).
 
 ---
 
@@ -118,7 +123,7 @@
 - **D12**: Public GitHub repo with All Rights Reserved proprietary license.
 - **D13**: `X-Robots-Tag: noindex` until launch.
 
-## Decisions Open (Ask in Phase 8)
+## Decisions Open for M5 Sign-Off
 - **D8**: Custom domain.
 - **D9**: Target market (India-first vs global scope).
 - **D11**: Analytics / error tracking (default is none).
@@ -127,14 +132,14 @@
 - None.
 
 ## Next Action
-- Open and squash-merge PR #8 for Phase 7 (Local history and progress), then create branch `feat/p8-hardening-launch` for Phase 8.
+- Await user go-ahead on Milestone 5 Report (`docs/reports/M5.md`) and decisions D8, D9, D11.
 
 ## Last-Session Summary
-- Phase 7 (Local history and progress) completed:
-  - Installed `dexie@^4.4.7` and `fake-indexeddb@^6.0.0` (all Apache-2.0, permissive license gate clean).
-  - Built IndexedDB persistence layer in `apps/web/src/storage/db.ts` with strict Zod validation (`ScanRecordSchema`, `UserSettingsSchema`, `HistoryExportSchema`), Dexie v1 -> v2 automatic migration, and JSON backup export/import.
-  - Implemented full unit & migration test suite in `apps/web/tests/storage.test.ts` (all 7 storage tests passing).
-  - Built `/history` route with chronological timeline, 2-scan side-by-side comparison with index/concern deltas, environmental lighting/blur variance warning (>12% drift), analyzer version mismatch badge, iOS Safari 7-day eviction warning card, storage quota indicator, persistent storage request button, thumbnail opt-in toggle, JSON export/import, and delete all.
-  - Integrated "Save to Local History" into `/report` and added breadcrumbs across `/`, `/report`, and `/history`.
-  - Added comprehensive E2E test suite in `apps/web/e2e/history.spec.ts` (16/16 tests passing across Mobile Chrome and Mobile Safari).
-  - Captured mobile screenshots at 390x844 and 360x800.
+- Phase 8 (Hardening and Launch) completed:
+  - Added accessibility skip links (`.skip-link`) and full `@media (prefers-reduced-motion)` rules across the application.
+  - Implemented Next.js client and root error boundaries (`error.tsx`, `global-error.tsx`) and styled 404 handler (`not-found.tsx`).
+  - Added full scientific transparency and legal routes: `/how-it-measures` (classical algorithms, iris scale calibration, Fitzpatrick fairness), `/privacy` (zero-knowledge policy), and `/terms` (non-diagnostic scope).
+  - Configured Next.js `robots.ts` (enforcing pre-launch `noindex`) and `sitemap.ts`.
+  - All 52 unit tests, 18 Playwright E2E tests, and static builds (13 routes) passing cleanly with zero outbound network requests.
+  - Mobile screenshots captured and synced to session artifacts.
+  - Published Milestone 5 Report: `docs/reports/M5.md`.
