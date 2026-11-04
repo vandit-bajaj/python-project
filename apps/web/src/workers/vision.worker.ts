@@ -2,9 +2,18 @@ import {
   batchRgbaToLab,
   computeIrisScale,
   generateGeometricSkinMask,
+  refineSkinMaskWithLuminance,
+  RednessAnalyzer,
+  PigmentationAnalyzer,
+  OilinessAnalyzer,
+  TextureAnalyzer,
+  WrinklesAnalyzer,
+  DarkCirclesAnalyzer,
+  aggregateAnalysis,
   type Point2D,
   type PolygonContours,
-  refineSkinMaskWithLuminance
+  type AnalyzerInput,
+  type AggregatedAnalysis
 } from "@dermalens/analysis-core";
 import * as Comlink from "comlink";
 
@@ -13,6 +22,14 @@ export interface ColorSpaceOutput {
   readonly labA: Float32Array;
   readonly labB: Float32Array;
 }
+
+// Single instances of pure analyzers
+const rednessAnalyzer = new RednessAnalyzer();
+const pigmentationAnalyzer = new PigmentationAnalyzer();
+const oilinessAnalyzer = new OilinessAnalyzer();
+const textureAnalyzer = new TextureAnalyzer();
+const wrinklesAnalyzer = new WrinklesAnalyzer();
+const darkCirclesAnalyzer = new DarkCirclesAnalyzer();
 
 export const visionWorkerApi = {
   /**
@@ -71,6 +88,47 @@ export const visionWorkerApi = {
     rightIrisP2?: Point2D
   ): Promise<number> {
     return computeIrisScale(leftIrisP1, leftIrisP2, rightIrisP1, rightIrisP2);
+  },
+
+  /**
+   * Runs the complete suite of skin analyzers in the worker thread.
+   */
+  async runAllAnalyzers(input: AnalyzerInput): Promise<AggregatedAnalysis> {
+    const startTime = performance.now();
+
+    // Pre-calculate CIELAB once to share across all 6 analyzers
+    const pixelCount = input.width * input.height;
+    const labL = new Float32Array(pixelCount);
+    const labA = new Float32Array(pixelCount);
+    const labB = new Float32Array(pixelCount);
+    batchRgbaToLab(input.uvTextureBuffer, pixelCount, labL, labA, labB);
+
+    const enrichedInput: AnalyzerInput = {
+      ...input,
+      labL,
+      labA,
+      labB
+    };
+
+    const results = await Promise.all([
+      rednessAnalyzer.analyze(enrichedInput),
+      pigmentationAnalyzer.analyze(enrichedInput),
+      oilinessAnalyzer.analyze(enrichedInput),
+      textureAnalyzer.analyze(enrichedInput),
+      wrinklesAnalyzer.analyze(enrichedInput),
+      darkCirclesAnalyzer.analyze(enrichedInput)
+    ]);
+
+    const aggregated = aggregateAnalysis(results, input.qualityReport);
+    const executionDurationMs = Math.round(performance.now() - startTime);
+
+    // Attach benchmark metric
+    return {
+      ...aggregated,
+      metadata: {
+        workerDurationMs: executionDurationMs
+      }
+    } as AggregatedAnalysis & { metadata: { workerDurationMs: number } };
   }
 };
 
