@@ -5,7 +5,7 @@ const cspHeader = `
   connect-src 'self';
   worker-src 'self' blob:;
   img-src 'self' data: blob:;
-  script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval';
   style-src 'self' 'unsafe-inline';
   font-src 'self';
   object-src 'none';

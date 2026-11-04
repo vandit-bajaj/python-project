@@ -17,7 +17,14 @@ export default defineConfig({
       name: "Mobile Chrome (360x800)",
       use: {
         ...devices["Pixel 7"],
-        viewport: { width: 360, height: 800 }
+        viewport: { width: 360, height: 800 },
+        permissions: ["camera"],
+        launchOptions: {
+          args: [
+            "--use-fake-device-for-media-stream",
+            "--use-fake-ui-for-media-stream"
+          ]
+        }
       }
     },
     {

@@ -1,4 +1,4 @@
-import { FaceRegion, type FaceRegionId } from "./types.js";
+import { FaceRegion, type FaceRegionId } from "./types";
 
 export const ALL_FACE_REGIONS: readonly FaceRegionId[] = [
   FaceRegion.FOREHEAD,
