@@ -2,9 +2,9 @@
 
 ## Overview
 - **Current Milestone**: M1 — Foundations and capture (Phases P0–P2)
-- **Current Phase**: Phase 1 — Mobile capture and quality gate
+- **Current Phase**: Phase 2 — Face geometry and region engine
 - **Last Updated**: 2026-11-04
-- **Branch**: `feat/p1-capture-gate`
+- **Branch**: `feat/p2-geometry-engine`
 
 ---
 
@@ -26,23 +26,24 @@
 - [ ] Vercel deployment setup *(Pending human setup: see `docs/HUMAN-TODO.md`)*.
 - [ ] Test devices recorded & baseline benchmarks *(Pending human setup: see `docs/HUMAN-TODO.md`)*.
 
-### Phase 1 — Mobile capture and quality gate (In Progress)
-- [ ] Permission primer & recovery states (denied, blocked in settings, no camera).
-- [ ] Camera stream pipeline & teardown (`visibilitychange`, unmount, route change, camera light off).
-- [ ] Live face-guide overlay with actionable guidance feedback ("move closer", "face the light", "hold still").
-- [ ] Pure quality-gate metrics in `packages/analysis-core`: single face, size/distance, yaw/pitch/roll, blur (Laplacian variance), exposure (clipping), colour cast (gray-world deviation).
-- [ ] Auto-capture after N consecutive good frames, plus a manual shutter fallback.
-- [ ] Downscaled EXIF-fixed upload pipeline with the same quality gate.
-- [ ] In-memory `CapturedFrame { bitmap, size, source, qualityReport }` lifecycle (no persistence of raw frames).
-- [ ] Automated Playwright camera flow test with fake camera flags (`--use-fake-device-for-media-stream`).
-- [ ] Physical device verification logged in `docs/HUMAN-TODO.md`.
+### Phase 1 — Mobile capture and quality gate (Complete)
+- [x] Permission primer & recovery states (denied, blocked in settings, no camera).
+- [x] Camera stream pipeline & teardown (`visibilitychange`, unmount, route change, camera light off).
+- [x] Live face-guide overlay with actionable guidance feedback ("move closer", "face the light", "hold still").
+- [x] Pure quality-gate metrics in `packages/analysis-core`: single face, size/distance, yaw/pitch/roll, blur (Laplacian variance), exposure (clipping), colour cast (gray-world deviation).
+- [x] Auto-capture after N consecutive good frames, plus a manual shutter fallback.
+- [x] Downscaled EXIF-fixed upload pipeline with the same quality gate.
+- [x] In-memory `CapturedFrame { bitmap, size, source, qualityReport }` lifecycle (no persistence of raw frames).
+- [x] Automated Playwright camera flow test with fake camera flags (`--use-fake-device-for-media-stream`).
+- [ ] Physical device verification logged in `docs/HUMAN-TODO.md` *(Pending device verification)*.
 
-### Phase 2 — Face geometry and region engine (Planned)
-- [ ] Web Worker + Comlink RPC with MediaPipe Face Landmarker (IMAGE & VIDEO)
-- [ ] 8 facial region index sets + debug visualizer
-- [ ] Morphological skin mask excluding hair, eyes, lips, nostrils
-- [ ] Iris scale normalisation (px -> mm)
-- [ ] Canonical UV unwrap & normalisation pipeline (CIELAB)
+### Phase 2 — Face geometry and region engine (In Progress)
+- [ ] Web Worker + Comlink RPC pipeline.
+- [ ] 8 facial region index sets (forehead, cheeks, nose, chin, perioral, under-eyes, T-zone, U-zone) + debug visualizer.
+- [ ] Morphological skin mask excluding hair, eyes, lips, nostrils.
+- [ ] Iris scale normalisation (px -> mm).
+- [ ] Canonical UV unwrap and normalisation pipeline.
+- [ ] Color pipeline: sRGB -> linear -> CIELAB color space conversions.
 
 ### Phase 3 — Analyzers v1 (classical CV) (Planned)
 - [ ] Core analyzers: redness, pigmentation, oiliness, texture/pores
@@ -97,11 +98,10 @@
 - None.
 
 ## Next Action
-- Write `docs/plans/p1.md` and implement Phase 1 (quality gate metrics in `analysis-core` and camera/upload pipeline in `apps/web`).
+- Write `docs/plans/p2.md` and implement Phase 2 (Face geometry, region engine, skin mask, and CIELAB colour pipeline in `packages/analysis-core` and Web Worker in `apps/web`).
 
 ## Last-Session Summary
-- Successfully scaffolded monorepo, Next.js 16 app with React 19, strict TypeScript, Biome, Vitest, Playwright.
-- Implemented and verified zero-outbound-requests security test and dependency license gate.
-- Recorded ADRs 0001 through 0004.
-- Opened PR #1 and squash-merged to `main` (`c12124f`).
-- Transitioned to Phase 1 on `feat/p1-capture-gate`.
+- Implemented and verified Phase 1: pure quality-gate algorithms (Laplacian blur variance, histogram exposure clipping, color cast analysis), camera pipeline with strict track teardown, guidance overlay with auto-capture & shutter, and upload path.
+- Automated fake-camera Playwright tests passed cleanly with zero external outbound requests.
+- Merged PR #2 into `main` (`64f014e`).
+- Transitioned to Phase 2 on `feat/p2-geometry-engine`.
